@@ -3,6 +3,9 @@
 import { useState, useEffect, useRef } from "react";
 import { Home } from "lucide-react";
 import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
 const NAV_LINKS = [
   { id: "home", label: "Home", href: "#", isIcon: true },
@@ -14,6 +17,7 @@ const NAV_LINKS = [
 export default function Navbar() {
   const [activeTab, setActiveTab] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
+  const isClickScrolling = useRef(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
@@ -27,6 +31,44 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // --- Scroll-spy: sync activeTab to whichever section is in view ---
+  useEffect(() => {
+    const sectionLinks = NAV_LINKS.filter((l) => !l.isIcon);
+    const triggers: ScrollTrigger[] = [];
+
+    const sections = sectionLinks
+      .map((l) => ({ id: l.id, el: document.querySelector<HTMLElement>(l.href) }))
+      .filter((s): s is { id: string; el: HTMLElement } => !!s.el);
+
+    sections.forEach(({ id, el }) => {
+      const st = ScrollTrigger.create({
+        trigger: el,
+        start: "top center",
+        end: "bottom center",
+        onEnter: () => !isClickScrolling.current && setActiveTab(id),
+        onEnterBack: () => !isClickScrolling.current && setActiveTab(id),
+      });
+      triggers.push(st);
+    });
+
+    // Fall back to "home" once scrolled above the first section
+    const firstSection = sections[0]?.el;
+    let homeTrigger: ScrollTrigger | null = null;
+    if (firstSection) {
+      homeTrigger = ScrollTrigger.create({
+        trigger: firstSection,
+        start: "top center",
+        onLeaveBack: () => !isClickScrolling.current && setActiveTab("home"),
+      });
+    }
+
+    return () => {
+      triggers.forEach((t) => t.kill());
+      homeTrigger?.kill();
+    };
+  }, []);
+
+  // --- Pill glide to active link ---
   useEffect(() => {
     const activeLink = linksRef.current[activeTab];
     const container = containerRef.current;
@@ -42,7 +84,6 @@ export default function Navbar() {
     const targetWidth = linkRect.width;
     const targetHeight = linkRect.height;
 
-    // Fluid iOS-style glide filling the active link boundaries exactly
     gsap.to(pill, {
       x: targetLeft,
       y: targetTop,
@@ -54,32 +95,29 @@ export default function Navbar() {
     });
   }, [activeTab]);
 
+  function handleNavClick(id: string) {
+    setActiveTab(id);
+    // Suppress scroll-spy fighting the click for the duration of the smooth scroll
+    isClickScrolling.current = true;
+    window.clearTimeout((handleNavClick as any)._t);
+    (handleNavClick as any)._t = window.setTimeout(() => {
+      isClickScrolling.current = false;
+    }, 800);
+  }
+
   return (
-    <nav
-      className={`fixed top-0 left-0 right-0 w-full flex justify-center pt-4 pb-6 z-50 transition-all duration-300 `}
-    >
-      {/* Outer Layout Wrapper */}
+    <nav className="fixed top-0 left-0 right-0 w-full flex justify-center pt-4 pb-6 z-50 transition-all duration-300">
       <div
         ref={containerRef}
         className={`flex items-center relative rounded-full p-1 transition-all duration-500 overflow-hidden 
-          ${isScrolled ? "backdrop-blur-md bg-black/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]" : "bg-[#181818] border border-transparent"
-          }
-          `
-        }
+          ${isScrolled ? "backdrop-blur-md bg-black/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]" : "bg-[#181818] border border-transparent"}`}
       >
-
-        {/* ${isScrolled
-          ? "bg-[#181818]/60 backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)] scale-95"
-          : "bg-[#181818] border border-transparent"
-        } */}
-        {/* Zero-Margin Fluid Glass Active Background */}
         <div
           ref={pillRef}
           className="absolute top-0 left-0 bg-white text-black rounded-full pointer-events-none z-0"
           style={{ width: 0, height: 0 }}
         />
 
-        {/* Unified Navigation Loop */}
         {NAV_LINKS.map((link) => {
           const isActive = activeTab === link.id;
 
@@ -89,7 +127,7 @@ export default function Navbar() {
                 key={link.id}
                 href={link.href}
                 ref={(el) => { linksRef.current[link.id] = el; }}
-                onClick={() => setActiveTab(link.id)}
+                onClick={() => handleNavClick(link.id)}
                 aria-label={link.label}
                 className={`flex h-11 w-11 items-center justify-center rounded-full shrink-0 z-10 transition-colors duration-300 ${isActive ? "text-black bg-white/60 backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)] scale-95" : "text-white/80 hover:text-white"
                   }`}
@@ -104,7 +142,7 @@ export default function Navbar() {
               key={link.id}
               href={link.href}
               ref={(el) => { linksRef.current[link.id] = el; }}
-              onClick={() => setActiveTab(link.id)}
+              onClick={() => handleNavClick(link.id)}
               className={`text-sm font-medium px-5 h-11 flex items-center justify-center rounded-full z-10 shrink-0 select-none transition-colors duration-300 ${isActive ? "text-black font-semibold" : "text-white/80 hover:text-white"
                 }`}
             >
@@ -112,7 +150,7 @@ export default function Navbar() {
             </a>
           );
         })}
-      </div>
-    </nav>
+      </div >
+    </nav >
   );
 }
