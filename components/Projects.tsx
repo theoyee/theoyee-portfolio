@@ -243,7 +243,8 @@ export default function Projects() {
         <div className="proj-cta mt-10 pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <p className="text-white/40 text-sm max-sm:text-center">More in progress than what{`'`}s shown here.</p>
           <Link
-            href="https://github.com"
+            href="https://github.com/theoyee"
+            target="_blank"
             className="group max-sm:mx-auto flex items-center gap-3 rounded-full bg-white/[0.08] pl-6 pr-2 py-2 text-white font-medium hover:bg-[#5b4cf5] transition-colors self-start sm:self-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-[#5b4cf5] focus-visible:ring-offset-2 focus-visible:ring-offset-[#1b1b1c]"
           >
             <span>View GitHub</span>

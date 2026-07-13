@@ -6,12 +6,15 @@ import Link from "next/link";
 import { RiLinkedinLine } from "react-icons/ri";
 import { VscGithubAlt, VscTwitter } from "react-icons/vsc";
 import gsap from "gsap";
+import { useRouter } from "next/navigation";
 
 const HEADLINE = "Building Scalable Systems That Power Real Products.";
 
 export default function Hero() {
   const rootRef = useRef<HTMLDivElement>(null);
   const words = HEADLINE.split(" ");
+
+  const router = useRouter();
 
   useEffect(() => {
     const ctx = gsap.context(() => {
@@ -177,8 +180,17 @@ export default function Hero() {
         </svg> */}
       </div>
 
-      <div className="w-full rounded-[32px] border border-white/10 bg-[#121212] p-10 sm:p-12">
-        <div className="flex items-start justify-between">
+      <div className="w-full rounded-[32px] border border-white/10 bg-[#121212] p-10 sm:p-12 relative">
+        <div
+          className="absolute inset-0 opacity-[0.03] pointer-events-none"
+          style={{
+            backgroundImage:
+              "linear-gradient(rgba(255,255,255,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.4) 1px, transparent 1px)",
+            backgroundSize: "50px 50px",
+          }}
+        />
+        <div className="flex items-start justify-between relative ">
+
           <div className="flex items-center gap-4 flex-1">
             <div className="hero-avatar h-16 w-16 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0">
               <img
@@ -240,14 +252,20 @@ export default function Hero() {
         </p>
 
         <div className="mt-9 flex items-center gap-3 max-ms:justify-center">
-          <button className="hero-cta group flex items-center gap-3 rounded-full bg-lime-700 [#5b4cf5] pl-6 pr-2 py-2 text-white font-medium hover:bg-lime-600 transition-colors">
+          <Link
+            href={"#contact"}
+            className="hero-cta group flex items-center gap-3 rounded-full bg-lime-700 [#5b4cf5] pl-6 pr-2 py-2 text-white font-medium hover:bg-lime-600 transition-colors"
+          >
             <span>Get started</span>
             <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/30">
               <ArrowDownRight className="h-4 w-4" />
             </span>
-          </button>
+          </Link>
 
-          <button className="hero-cta rounded-full bg-white/10 px-6 py-3.5 text-white font-medium hover:bg-white/15 transition-colors max-md:hidden">
+          <button
+            onClick={() => router.push("/work")}
+            className="hero-cta rounded-full bg-white/10 px-6 py-3.5 text-white font-medium hover:bg-white/15 transition-colors max-md:hidden"
+          >
             My work
           </button>
 

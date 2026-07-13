@@ -224,7 +224,7 @@ export default function About() {
             Want to see the commits behind the pipeline above?
           </p>
           <a
-            href="#work"
+            href="/work"
             className="group max-sm:mx-auto flex items-center gap-3 rounded-full bg-white/[0.08] pl-6 pr-2 py-2 text-white font-medium hover:bg-lime-600 transition-colors self-start sm:self-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1b1b1c]"
           >
             <span>Explore my work</span>
