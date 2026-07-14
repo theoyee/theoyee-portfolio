@@ -84,3 +84,27 @@ section,
 footer {
   @apply my-10 md:my-20;
 }
+
+html,
+body {
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+@media (pointer: fine) {
+  /* Hides default cursor only on devices with a mouse */
+  body {
+    cursor: none;
+  }
+
+  a,
+  button,
+  input,
+  textarea,
+  [role="button"] {
+    cursor: none;
+  }
+}

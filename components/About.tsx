@@ -103,6 +103,157 @@
 
 
 
+// import { ArrowUpRight, Cpu, Layers, Server } from "lucide-react";
+
+// export default function About() {
+//   const pipeline = [
+//     {
+//       stage: "01",
+//       tag: "INTERFACE",
+//       icon: <Layers className="h-4 w-4" />,
+//       title: "Modern Frontend Engineering",
+//       desc: "Modular React and Next.js interfaces, tuned for layout stability and motion that never fights the frame rate.",
+//     },
+//     {
+//       stage: "02",
+//       tag: "LOGIC",
+//       icon: <Cpu className="h-4 w-4" />,
+//       title: "Backend & Systems Architecture",
+//       desc: "API layers and data models designed for the load they'll actually carry, not the one in the demo.",
+//     },
+//     {
+//       stage: "03",
+//       tag: "INFRASTRUCTURE",
+//       icon: <Server className="h-4 w-4" />,
+//       title: "Deployment & Delivery",
+//       desc: "CI/CD and containerized pipelines that turn a merged branch into a running system, automatically.",
+//     },
+//   ];
+
+//   return (
+//     <div className="w-full bg-[#232322] rounded-b-[28px]  px-2 py-6">
+//       <div className="w-full p-10 sm:p-12">
+//         {/* Header row */}
+//         <div className="flex items-start justify-between gap-6">
+//           <div>
+//             <h2 className="text-white text-xl font-semibold leading-tight">About</h2>
+//             <p className="text-white/45 text-sm mt-1">Philosophy &amp; stack</p>
+//           </div>
+
+//           <div className="hidden sm:flex items-center gap-2 rounded-full border border-white/[0.08] bg-black/30 px-3 py-1.5 shrink-0">
+//             <span className="relative flex h-1.5 w-1.5">
+//               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#5b4cf5]/60" />
+//               <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#5b4cf5]" />
+//             </span>
+//             <span className="text-white/50 text-[11px] font-mono tracking-wider uppercase">
+//               currently shipping
+//             </span>
+//           </div>
+//         </div>
+
+//         {/* Headline */}
+//         <h3 className="mt-10 text-white text-4xl sm:text-5xl md:text-[52px] font-semibold leading-[1.08] tracking-tight max-w-3xl">
+//           Engineering products with deliberate execution and clean foundations.
+//         </h3>
+
+//         {/* Narrative / Strategy split */}
+//         <div className="mt-12 grid grid-cols-1 md:grid-cols-5 gap-8 border-t border-white/[0.06] pt-8">
+//           <div className="md:col-span-2">
+//             <span className="text-white/40 text-xs font-mono font-medium uppercase tracking-wider">
+//               the strategy
+//             </span>
+//           </div>
+//           <div className="md:col-span-3 space-y-6 text-white/55 text-base sm:text-lg leading-relaxed">
+//             <p>
+//               I ground my engineering approach at the intersection of performance and structural clarity.
+//               Instead of rushing straight to production, I plan the data schema and the architecture pattern
+//               first, so the product can scale without compounding tech debt later.
+//             </p>
+//             <p>
+//               The goal stays constant across every project: cut runtime overhead, build systems a collaborator
+//               can extend without a walkthrough, and ship interfaces that feel native to whatever browser opens
+//               them.
+//             </p>
+//           </div>
+//         </div>
+
+//         {/* Signature element: architecture pipeline */}
+//         <div className="mt-12 border-t border-white/[0.06] pt-10">
+//           <span className="text-white/40 text-xs font-mono font-medium uppercase tracking-wider block mb-10">
+//             how a request moves through my stack
+//           </span>
+
+//           <div className="relative">
+//             {/* connector line (desktop) */}
+//             <div className="hidden md:block absolute left-0 right-0 top-[38px] h-px overflow-hidden">
+//               <div className="h-full w-full bg-white/[0.08]" />
+//               <div className="pipeline-flow absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-lime-600 to-transparent" />
+//             </div>
+
+//             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 relative">
+//               {pipeline.map((step, i) => (
+//                 <div key={i} className="relative">
+//                   <div className="flex items-center gap-3 md:block">
+//                     <div className="relative z-10 h-[76px] w-[76px] md:h-[76px] md:w-[76px] shrink-0 rounded-2xl border border-white/[0.08] bg-[#151516] flex flex-col items-center justify-center gap-1 text-lime-400">
+//                       {step.icon}
+//                       <span className="text-white/30 text-[10px] font-mono tracking-widest">
+//                         {step.stage}
+//                       </span>
+//                     </div>
+//                     <span className="md:hidden text-white/30 text-[11px] font-mono tracking-widest uppercase">
+//                       {step.tag}
+//                     </span>
+//                   </div>
+
+//                   <div className="mt-4 md:mt-5">
+//                     <span className="hidden md:inline-block text-white/30 text-[11px] font-mono tracking-widest uppercase mb-2">
+//                       {step.tag}
+//                     </span>
+//                     <h4 className="text-white text-lg font-medium mb-2 mt-0.5">{step.title}</h4>
+//                     <p className="text-white/40 text-sm leading-relaxed max-w-xs">{step.desc}</p>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+
+//         {/* Bottom CTA */}
+//         <div className="mt-12 py-8 border-t border-white/[0.06] flex flex-col sm:flex-row sm:items-center justify-between gap-4 max-sm:justify-center">
+//           <p className="text-white/45 text-sm max-sm:text-center">
+//             Want to see the commits behind the pipeline above?
+//           </p>
+//           <a
+//             href="/work"
+//             className="group max-sm:mx-auto flex items-center gap-3 rounded-full bg-white/[0.08] pl-6 pr-2 py-2 text-white font-medium hover:bg-lime-600 transition-colors self-start sm:self-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1b1b1c]"
+//           >
+//             <span>Explore my work</span>
+//             <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-[#151516] group-hover:bg-[#1b1b1c] transition-colors">
+//               <ArrowUpRight className="h-4 w-4" />
+//             </span>
+//           </a>
+//         </div>
+//       </div>
+
+//       <style>{`
+//         @keyframes pipeline-flow {
+//           0% { transform: translateX(-100%); }
+//           100% { transform: translateX(300%); }
+//         }
+//         .pipeline-flow {
+//           animation: pipeline-flow 3.5s ease-in-out infinite;
+//         }
+//         @media (prefers-reduced-motion: reduce) {
+//           .pipeline-flow { animation: none; }
+//           .animate-ping { animation: none; }
+//         }
+//       `}</style>
+//     </div>
+//   );
+// }
+
+
+
 import { ArrowUpRight, Cpu, Layers, Server } from "lucide-react";
 
 export default function About() {
@@ -131,19 +282,19 @@ export default function About() {
   ];
 
   return (
-    <div className="w-full bg-[#232322] rounded-b-[28px]  px-2 py-6">
-      <div className="w-full p-10 sm:p-12">
+    <div className="w-full bg-[#101210] rounded-b-[28px] px-2 py-6">
+      <div className="w-full py-10 sm:p-12">
         {/* Header row */}
         <div className="flex items-start justify-between gap-6">
           <div>
-            <h2 className="text-white text-xl font-semibold leading-tight">About</h2>
+            <h2 className="text-[#E7E5DE] text-xl font-display font-semibold leading-tight">About</h2>
             <p className="text-white/45 text-sm mt-1">Philosophy &amp; stack</p>
           </div>
 
           <div className="hidden sm:flex items-center gap-2 rounded-full border border-white/[0.08] bg-black/30 px-3 py-1.5 shrink-0">
             <span className="relative flex h-1.5 w-1.5">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#5b4cf5]/60" />
-              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#5b4cf5]" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#59D9C7]/60" />
+              <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#59D9C7]" />
             </span>
             <span className="text-white/50 text-[11px] font-mono tracking-wider uppercase">
               currently shipping
@@ -152,7 +303,7 @@ export default function About() {
         </div>
 
         {/* Headline */}
-        <h3 className="mt-10 text-white text-4xl sm:text-5xl md:text-[52px] font-semibold leading-[1.08] tracking-tight max-w-3xl">
+        <h3 className="mt-10 text-[#E7E5DE] text-4xl sm:text-5xl md:text-[52px] font-display font-semibold leading-[1.08] tracking-tight max-w-3xl">
           Engineering products with deliberate execution and clean foundations.
         </h3>
 
@@ -163,7 +314,7 @@ export default function About() {
               the strategy
             </span>
           </div>
-          <div className="md:col-span-3 space-y-6 text-white/55 text-base sm:text-lg leading-relaxed">
+          <div className="md:col-span-3 space-y-6 text-white/55 text-base sm:text-lg leading-relaxed font-sans">
             <p>
               I ground my engineering approach at the intersection of performance and structural clarity.
               Instead of rushing straight to production, I plan the data schema and the architecture pattern
@@ -187,14 +338,14 @@ export default function About() {
             {/* connector line (desktop) */}
             <div className="hidden md:block absolute left-0 right-0 top-[38px] h-px overflow-hidden">
               <div className="h-full w-full bg-white/[0.08]" />
-              <div className="pipeline-flow absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-lime-600 to-transparent" />
+              <div className="pipeline-flow absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-[#FFB000] to-transparent" />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-6 relative">
               {pipeline.map((step, i) => (
                 <div key={i} className="relative">
                   <div className="flex items-center gap-3 md:block">
-                    <div className="relative z-10 h-[76px] w-[76px] md:h-[76px] md:w-[76px] shrink-0 rounded-2xl border border-white/[0.08] bg-[#151516] flex flex-col items-center justify-center gap-1 text-lime-400">
+                    <div className="relative z-10 h-[76px] w-[76px] md:h-[76px] md:w-[76px] shrink-0 rounded-2xl border border-white/[0.08] bg-[#0D0F0D] flex flex-col items-center justify-center gap-1 text-[#FFB000]">
                       {step.icon}
                       <span className="text-white/30 text-[10px] font-mono tracking-widest">
                         {step.stage}
@@ -209,8 +360,8 @@ export default function About() {
                     <span className="hidden md:inline-block text-white/30 text-[11px] font-mono tracking-widest uppercase mb-2">
                       {step.tag}
                     </span>
-                    <h4 className="text-white text-lg font-medium mb-2 mt-0.5">{step.title}</h4>
-                    <p className="text-white/40 text-sm leading-relaxed max-w-xs">{step.desc}</p>
+                    <h4 className="text-[#E7E5DE] text-lg font-medium mb-2 mt-0.5">{step.title}</h4>
+                    <p className="text-white/40 text-sm leading-relaxed max-w-xs font-sans">{step.desc}</p>
                   </div>
                 </div>
               ))}
@@ -225,10 +376,10 @@ export default function About() {
           </p>
           <a
             href="/work"
-            className="group max-sm:mx-auto flex items-center gap-3 rounded-full bg-white/[0.08] pl-6 pr-2 py-2 text-white font-medium hover:bg-lime-600 transition-colors self-start sm:self-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-lime-500 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1b1b1c]"
+            className="group max-sm:mx-auto flex items-center gap-3 rounded-full bg-white/[0.08] pl-6 pr-2 py-2 text-white font-medium hover:bg-[#FFB000] hover:text-[#08090A] transition-colors self-start sm:self-auto focus:outline-none focus-visible:ring-2 focus-visible:ring-[#59D9C7] focus-visible:ring-offset-2 focus-visible:ring-offset-[#101210]"
           >
             <span>Explore my work</span>
-            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-[#151516] group-hover:bg-[#1b1b1c] transition-colors">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full border border-white/20 bg-[#0D0F0D] group-hover:bg-[#08090A] group-hover:border-black/20 group-hover:text-[#FFB000] transition-colors">
               <ArrowUpRight className="h-4 w-4" />
             </span>
           </a>
