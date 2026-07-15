@@ -188,8 +188,12 @@ export default function Contact() {
             </p>
 
             <div className="mt-8 flex items-center gap-3">
-              <div className="h-11 w-11 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/70 font-mono text-sm">
-                OE
+              <div className="relative h-11 w-11 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-white/70 font-mono text-sm">
+                <img
+                  src="https://api.dicebear.com/10.x/micah/svg?seed=theoyee&backgroundColor=121212&radius=50"
+                  alt="_theoyee avatar"
+                  className="h-full w-full object-cover border-double rounded-full"
+                />
               </div>
               <div>
                 <p className="text-[#E7E5DE] text-sm font-medium">Oyee Emmanuel</p>

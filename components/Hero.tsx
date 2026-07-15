@@ -425,10 +425,11 @@ export default function Hero() {
           <div className="flex items-center gap-4 flex-1">
             <div className="hero-avatar h-16 w-16 rounded-full bg-white flex items-center justify-center overflow-hidden shrink-0">
               <img
-                src="https://api.dicebear.com/10.x/micah/svg?seed=theoyee&backgroundColor=121212&radius=50"
+                src="https://api.dicebear.com/10.x/micah/svg?seed=theoyee&backgroundColor=161616&radius=50"
                 alt="_theoyee avatar"
                 className="h-full w-full object-cover border-double"
               />
+              {/* <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#101210] bg-[#59D9C7]" /> */}
             </div>
             <div>
               <h2 className="hero-name-line text-[#E7E5DE] text-xl font-display font-semibold leading-tight">

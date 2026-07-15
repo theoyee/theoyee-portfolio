@@ -313,6 +313,18 @@ export default function About() {
             <span className="text-white/40 text-xs font-mono font-medium uppercase tracking-wider">
               the strategy
             </span>
+
+            <div className="relative h-full w-full overflow-hidden  bordr borderwhite/[0.08] bg[#181A18] ">
+              {/* <div className="bg-[#FFB000] h-8 w-8 rounded-full  " /> */}
+              <img
+                src="https://api.dicebear.com/10.x/micah/svg?seed=theoyeelzr&backgroundColor=121212&radius=150"
+                // src="https://api.dicebear.com/10.x/micah/svg?seed=theoyee&backgroundColor=121212&radius=150"
+                alt="Oyee Olagoke"
+                className="h-full w-full object-contain absolute"
+                draggable={true}
+              />
+              {/* <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#101210] bg-[#59D9C7]" /> */}
+            </div>
           </div>
           <div className="md:col-span-3 space-y-6 text-white/55 text-base sm:text-lg leading-relaxed font-sans">
             <p>

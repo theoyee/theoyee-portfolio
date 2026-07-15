@@ -68,9 +68,9 @@ export default function RootLayout({ children }) {
     >
       <body className="min-h-full flex flex-col relative overflow-x-hidden scroll-smooth">
         <CustomCursor />
-        <Navbar />
         <BackgroundGlow />
         <SmoothScroll />
+        <Navbar />
         {children}
       </body>
     </html>

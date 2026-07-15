@@ -1,59 +1,133 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Home } from "lucide-react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { usePathname } from "next/navigation";
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
-const NAV_LINKS = [
+type NavLink = {
+  id: string;
+  label: string;
+  href: string;
+  isIcon?: boolean;
+};
+
+const DEFAULT_NAV_LINKS: NavLink[] = [
   { id: "home", label: "Home", href: "#", isIcon: true },
   { id: "projects", label: "Projects", href: "#projects" },
   { id: "services", label: "Services", href: "#services" },
   { id: "contact", label: "Contact", href: "#contact" },
 ];
 
+
+const Work_NAV_LINKS: NavLink[] = [
+  { id: "home", label: "Home", href: "/", isIcon: true },
+  { id: "projects", label: "Projects", href: "/#projects" },
+  { id: "services", label: "Services", href: "/#services" },
+  { id: "contact", label: "Contact", href: "/#contact" },
+];
+
+const INACTIVITY_TIME = 3000;
+const IDLE_WIDTH = 240;
+
 export default function Navbar() {
   const [activeTab, setActiveTab] = useState("home");
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isIdle, setIsIdle] = useState(false);
+
+  const pathname = usePathname();
+
+  const NAV_LINKS = pathname == '/' ? DEFAULT_NAV_LINKS : Work_NAV_LINKS;
+
   const isClickScrolling = useRef(false);
+  const clickScrollTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const inactivityTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const pillRef = useRef<HTMLDivElement>(null);
-  const linksRef = useRef<{ [key: string]: HTMLAnchorElement | null }>({});
+  const linksRef = useRef<Record<string, HTMLAnchorElement | null>>({});
 
+  // --------------------------------------------------
+  // Inactivity detection
+  // --------------------------------------------------
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+    const resetInactivity = () => {
+      setIsIdle(false);
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+      inactivityTimer.current = setTimeout(() => setIsIdle(true), INACTIVITY_TIME);
     };
-    window.addEventListener("scroll", handleScroll);
+
+    const activityEvents: (keyof WindowEventMap)[] = [
+      "mousemove",
+      "mousedown",
+      "pointermove",
+      "touchstart",
+      "scroll",
+      "keydown",
+    ];
+
+    activityEvents.forEach((event) =>
+      window.addEventListener(event, resetInactivity, { passive: true })
+    );
+    resetInactivity();
+
+    return () => {
+      activityEvents.forEach((event) => window.removeEventListener(event, resetInactivity));
+      if (inactivityTimer.current) clearTimeout(inactivityTimer.current);
+    };
+  }, []);
+
+  // --------------------------------------------------
+  // Scroll state (shadow / blur intensity)
+  // --------------------------------------------------
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // --- Scroll-spy: sync activeTab to whichever section is in view ---
+  // --------------------------------------------------
+  // Scroll spy
+  // --------------------------------------------------
+  // --------------------------------------------------
+  // Scroll spy
+  // --------------------------------------------------
   useEffect(() => {
     const sectionLinks = NAV_LINKS.filter((l) => !l.isIcon);
     const triggers: ScrollTrigger[] = [];
 
     const sections = sectionLinks
-      .map((l) => ({ id: l.id, el: document.querySelector<HTMLElement>(l.href) }))
+      .map((l) => {
+        // Safely extract just the "#id" part for the query selector (e.g., "/#projects" -> "#projects")
+        const hashIndex = l.href.indexOf("#");
+        const selector = hashIndex !== -1 ? l.href.substring(hashIndex) : null;
+
+        return {
+          id: l.id,
+          el: selector ? document.querySelector<HTMLElement>(selector) : null
+        };
+      })
       .filter((s): s is { id: string; el: HTMLElement } => !!s.el);
 
     sections.forEach(({ id, el }) => {
-      const st = ScrollTrigger.create({
-        trigger: el,
-        start: "top center",
-        end: "bottom center",
-        onEnter: () => !isClickScrolling.current && setActiveTab(id),
-        onEnterBack: () => !isClickScrolling.current && setActiveTab(id),
-      });
-      triggers.push(st);
+      triggers.push(
+        ScrollTrigger.create({
+          trigger: el,
+          start: "top center",
+          end: "bottom center",
+          onEnter: () => !isClickScrolling.current && setActiveTab(id),
+          onEnterBack: () => !isClickScrolling.current && setActiveTab(id),
+        })
+      );
     });
 
-    // Fall back to "home" once scrolled above the first section
     const firstSection = sections[0]?.el;
     let homeTrigger: ScrollTrigger | null = null;
+
     if (firstSection) {
       homeTrigger = ScrollTrigger.create({
         trigger: firstSection,
@@ -66,248 +140,169 @@ export default function Navbar() {
       triggers.forEach((t) => t.kill());
       homeTrigger?.kill();
     };
-  }, []);
+  }, [NAV_LINKS]);
 
-  // --- Pill glide to active link ---
-  useEffect(() => {
-    const activeLink = linksRef.current[activeTab];
-    const container = containerRef.current;
+  // --------------------------------------------------
+  // Active pill animation (with resize-aware re-measurement)
+  // --------------------------------------------------
+  const movePill = useCallback(() => {
     const pill = pillRef.current;
+    const container = containerRef.current;
+    if (!pill || !container) return;
 
-    if (!activeLink || !container || !pill) return;
+    if (isIdle) {
+      gsap.to(pill, {
+        opacity: 0,
+        duration: 0.3,
+        ease: "power2.out",
+        overwrite: "auto",
+      });
+      return;
+    }
+
+    const activeLink = linksRef.current[activeTab];
+    if (!activeLink) return;
 
     const containerRect = container.getBoundingClientRect();
     const linkRect = activeLink.getBoundingClientRect();
 
-    const targetLeft = linkRect.left - containerRect.left;
-    const targetTop = linkRect.top - containerRect.top;
-    const targetWidth = linkRect.width;
-    const targetHeight = linkRect.height;
-
     gsap.to(pill, {
-      x: targetLeft,
-      y: targetTop,
-      width: targetWidth,
-      height: targetHeight,
-      duration: 0.45,
-      ease: "power4.out",
+      x: linkRect.left - containerRect.left,
+      y: linkRect.top - containerRect.top,
+      width: linkRect.width,
+      height: linkRect.height,
+      opacity: 1,
+      duration: 0.55,
+      ease: "elastic.out(1, 0.75)",
       overwrite: "auto",
     });
-  }, [activeTab]);
+  }, [activeTab, isIdle]);
+
+  useEffect(() => {
+    movePill();
+  }, [movePill]);
+
+  // Re-align the pill if the layout shifts (font load, resize, etc.)
+  useEffect(() => {
+    const handleResize = () => movePill();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [movePill]);
+
+  // --------------------------------------------------
+  // Navbar shell transition (pill nav <-> idle capsule)
+  // --------------------------------------------------
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+
+    gsap.to(container, {
+      width: isIdle ? IDLE_WIDTH : "auto",
+      duration: 0.6,
+      ease: "power3.inOut",
+      overwrite: "auto",
+    });
+  }, [isIdle]);
 
   function handleNavClick(id: string) {
     setActiveTab(id);
-    // Suppress scroll-spy fighting the click for the duration of the smooth scroll
     isClickScrolling.current = true;
-    window.clearTimeout((handleNavClick as any)._t);
-    (handleNavClick as any)._t = window.setTimeout(() => {
+    if (clickScrollTimeout.current) clearTimeout(clickScrollTimeout.current);
+    clickScrollTimeout.current = setTimeout(() => {
       isClickScrolling.current = false;
     }, 800);
   }
 
   return (
-    <nav className="fixed top-0 left-0 right-0 w-full flex justify-center pt-4 pb-6 z-50 transition-all duration-300">
+    <nav className="fixed top-0 left-0 right-0 z-50 flex w-full justify-center pt-4 pb-6">
       <div
         ref={containerRef}
-        className={`flex items-center relative rounded-full p-1 transition-all duration-500 overflow-hidden 
-          ${isScrolled ? "backdrop-blur-md bg-black/20 border border-white/[0.06] shadow-[0_8px_32px_0_rgba(0,0,0,0.35)]" : "bg-[#101210] border border-white/[0.08]"}`}
+        className={`relative flex items-center overflow-hidden rounded-full p-1 transition-[background-color,border-color,box-shadow] duration-500 ${isScrolled
+          ? "border border-white/[0.06] bg-black/20 shadow-[0_8px_32px_0_rgba(0,0,0,0.35)] backdrop-blur-md"
+          : "border border-white/[0.08] bg-[#101210]"
+          }`}
       >
+        {/* Active pill indicator */}
         <div
           ref={pillRef}
-          className="absolute top-0 left-0 bg-[#FFB000] rounded-full pointer-events-none z-0"
+          className="pointer-events-none absolute left-0 top-0 z-0 rounded-full bg-[#FFB000] opacity-0 shadow-[0_2px_10px_rgba(255,176,0,0.35)]"
           style={{ width: 0, height: 0 }}
         />
 
-        {NAV_LINKS.map((link) => {
-          const isActive = activeTab === link.id;
+        {/* IDLE STATE — "available for hire" capsule */}
+        <div
+          className={`flex items-center gap-3 px-3 py-2 transition-all duration-500 ${isIdle ? "scale-100 opacity-100" : "pointer-events-none absolute scale-95 opacity-0"
+            }`}
+        >
+          <div className="relative h-9 w-9 overflow-hidden rounded-full border border-white/[0.08] bg-[#181A18] ">
+            {/* <div className="bg-[#FFB000] h-8 w-8 rounded-full  " /> */}
+            <img
+              src="https://api.dicebear.com/10.x/micah/svg?seed=theoyee&backgroundColor=121212&radius=150"
+              alt="Oyee Olagoke"
+              className="h-full w-full object-cover absolute"
+              draggable={true}
+            />
+            <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#101210] bg-[#59D9C7]" />
+          </div>
 
-          if (link.isIcon) {
+          <div className="flex items-center gap-2 pr-2">
+            <span className="whitespace-nowrap font-mono text-[11px] uppercase tracking-widest text-white/60">
+              Available for hire
+            </span>
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#59D9C7]/60" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#59D9C7]" />
+            </span>
+          </div>
+        </div>
+
+        {/* NORMAL NAV */}
+        <div
+          className={`flex items-center transition-all duration-500 ${isIdle ? "pointer-events-none absolute scale-95 opacity-0" : "scale-100 opacity-100"
+            }`}
+        >
+          {NAV_LINKS.map((link) => {
+            const isActive = activeTab === link.id;
+
+            if (link.isIcon) {
+              return (
+                <a
+                  key={link.id}
+                  href={link.href}
+                  ref={(el) => {
+                    linksRef.current[link.id] = el;
+                  }}
+                  onClick={() => handleNavClick(link.id)}
+                  aria-label={link.label}
+                  aria-current={isActive ? "page" : undefined}
+                  className={`z-10 flex h-11 w-11 shrink-0 items-center justify-center rounded-full outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#FFB000]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101210] ${isActive
+                    ? "scale-95 border border-black/10 bg-[#FFB000]/70 text-[#08090A] shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15)] backdrop-blur-xl"
+                    : "text-white/80 hover:text-[#FFB000]"
+                    }`}
+                >
+                  <Home className="h-[18px] w-[18px]" />
+                </a>
+              );
+            }
+
             return (
               <a
                 key={link.id}
                 href={link.href}
-                ref={(el) => { linksRef.current[link.id] = el; }}
+                ref={(el) => {
+                  linksRef.current[link.id] = el;
+                }}
                 onClick={() => handleNavClick(link.id)}
-                aria-label={link.label}
-                className={`flex h-11 w-11 items-center justify-center rounded-full shrink-0 z-10 transition-colors duration-300 ${isActive ? "text-[#08090A] bg-[#FFB000]/70 backdrop-blur-xl border border-black/10 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.15)] scale-95" : "text-white/80 hover:text-[#FFB000]"
+                aria-current={isActive ? "page" : undefined}
+                className={`z-10 flex h-11 shrink-0 select-none items-center justify-center rounded-full px-5 text-sm font-medium outline-none transition-colors duration-300 focus-visible:ring-2 focus-visible:ring-[#FFB000]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#101210] ${isActive ? "font-semibold text-[#08090A]" : "text-white/80 hover:text-[#FFB000]"
                   }`}
               >
-                <Home className="h-[18px] w-[18px]" />
+                {link.label}
               </a>
             );
-          }
-
-          return (
-            <a
-              key={link.id}
-              href={link.href}
-              ref={(el) => { linksRef.current[link.id] = el; }}
-              onClick={() => handleNavClick(link.id)}
-              className={`text-sm font-medium px-5 h-11 flex items-center justify-center rounded-full z-10 shrink-0 select-none transition-colors duration-300 ${isActive ? "text-[#08090A] font-semibold" : "text-white/80 hover:text-[#FFB000]"
-                }`}
-            >
-              {link.label}
-            </a>
-          );
-        })}
-      </div >
-    </nav >
+          })}
+        </div>
+      </div>
+    </nav>
   );
 }
-
-// "use client";
-
-// import { useState, useEffect, useRef } from "react";
-// import { Home } from "lucide-react";
-// import gsap from "gsap";
-// import { ScrollTrigger } from "gsap/ScrollTrigger";
-
-// if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
-
-// const NAV_LINKS = [
-//   { id: "home", label: "Home", href: "#", isIcon: true },
-//   { id: "projects", label: "Projects", href: "#projects" },
-//   { id: "services", label: "Services", href: "#services" },
-//   { id: "contact", label: "Contact", href: "#contact" },
-// ];
-
-// export default function Navbar() {
-//   const [activeTab, setActiveTab] = useState("home");
-//   const [isScrolled, setIsScrolled] = useState(false);
-//   const isClickScrolling = useRef(false);
-
-//   const containerRef = useRef<HTMLDivElement>(null);
-//   const pillRef = useRef<HTMLDivElement>(null);
-//   const linksRef = useRef<{ [key: string]: HTMLAnchorElement | null }>({});
-
-//   useEffect(() => {
-//     const handleScroll = () => {
-//       setIsScrolled(window.scrollY > 20);
-//     };
-//     window.addEventListener("scroll", handleScroll);
-//     return () => window.removeEventListener("scroll", handleScroll);
-//   }, []);
-
-//   // --- Scroll-spy: sync activeTab to whichever section is in view ---
-//   useEffect(() => {
-//     const sectionLinks = NAV_LINKS.filter((l) => !l.isIcon);
-//     const triggers: ScrollTrigger[] = [];
-
-//     const sections = sectionLinks
-//       .map((l) => ({ id: l.id, el: document.querySelector<HTMLElement>(l.href) }))
-//       .filter((s): s is { id: string; el: HTMLElement } => !!s.el);
-
-//     sections.forEach(({ id, el }) => {
-//       const st = ScrollTrigger.create({
-//         trigger: el,
-//         start: "top center",
-//         end: "bottom center",
-//         onEnter: () => !isClickScrolling.current && setActiveTab(id),
-//         onEnterBack: () => !isClickScrolling.current && setActiveTab(id),
-//       });
-//       triggers.push(st);
-//     });
-
-//     // Fall back to "home" once scrolled above the first section
-//     const firstSection = sections[0]?.el;
-//     let homeTrigger: ScrollTrigger | null = null;
-//     if (firstSection) {
-//       homeTrigger = ScrollTrigger.create({
-//         trigger: firstSection,
-//         start: "top center",
-//         onLeaveBack: () => !isClickScrolling.current && setActiveTab("home"),
-//       });
-//     }
-
-//     return () => {
-//       triggers.forEach((t) => t.kill());
-//       homeTrigger?.kill();
-//     };
-//   }, []);
-
-//   // --- Pill glide to active link ---
-//   useEffect(() => {
-//     const activeLink = linksRef.current[activeTab];
-//     const container = containerRef.current;
-//     const pill = pillRef.current;
-
-//     if (!activeLink || !container || !pill) return;
-
-//     const containerRect = container.getBoundingClientRect();
-//     const linkRect = activeLink.getBoundingClientRect();
-
-//     const targetLeft = linkRect.left - containerRect.left;
-//     const targetTop = linkRect.top - containerRect.top;
-//     const targetWidth = linkRect.width;
-//     const targetHeight = linkRect.height;
-
-//     gsap.to(pill, {
-//       x: targetLeft,
-//       y: targetTop,
-//       width: targetWidth,
-//       height: targetHeight,
-//       duration: 0.45,
-//       ease: "power4.out",
-//       overwrite: "auto",
-//     });
-//   }, [activeTab]);
-
-//   function handleNavClick(id: string) {
-//     setActiveTab(id);
-//     // Suppress scroll-spy fighting the click for the duration of the smooth scroll
-//     isClickScrolling.current = true;
-//     window.clearTimeout((handleNavClick as any)._t);
-//     (handleNavClick as any)._t = window.setTimeout(() => {
-//       isClickScrolling.current = false;
-//     }, 800);
-//   }
-
-//   return (
-//     <nav className="fixed top-0 left-0 right-0 w-full flex justify-center pt-4 pb-6 z-50 transition-all duration-300">
-//       <div
-//         ref={containerRef}
-//         className={`flex items-center relative rounded-full p-1 transition-all duration-500 overflow-hidden 
-//           ${isScrolled ? "backdrop-blur-md bg-black/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]" : "bg-[#181818] border border-transparent"}`}
-//       >
-//         <div
-//           ref={pillRef}
-//           className="absolute top-0 left-0 bg-white text-black rounded-full pointer-events-none z-0"
-//           style={{ width: 0, height: 0 }}
-//         />
-
-//         {NAV_LINKS.map((link) => {
-//           const isActive = activeTab === link.id;
-
-//           if (link.isIcon) {
-//             return (
-//               <a
-//                 key={link.id}
-//                 href={link.href}
-//                 ref={(el) => { linksRef.current[link.id] = el; }}
-//                 onClick={() => handleNavClick(link.id)}
-//                 aria-label={link.label}
-//                 className={`flex h-11 w-11 items-center justify-center rounded-full shrink-0 z-10 transition-colors duration-300 ${isActive ? "text-black bg-white/60 backdrop-blur-xl border border-white/10 shadow-[inset_0_1px_1px_0_rgba(255,255,255,0.1)] scale-95" : "text-white/80 hover:text-white"
-//                   }`}
-//               >
-//                 <Home className="h-[18px] w-[18px]" />
-//               </a>
-//             );
-//           }
-
-//           return (
-//             <a
-//               key={link.id}
-//               href={link.href}
-//               ref={(el) => { linksRef.current[link.id] = el; }}
-//               onClick={() => handleNavClick(link.id)}
-//               className={`text-sm font-medium px-5 h-11 flex items-center justify-center rounded-full z-10 shrink-0 select-none transition-colors duration-300 ${isActive ? "text-black font-semibold" : "text-white/80 hover:text-white"
-//                 }`}
-//             >
-//               {link.label}
-//             </a>
-//           );
-//         })}
-//       </div >
-//     </nav >
-//   );
-// }

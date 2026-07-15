@@ -64,6 +64,7 @@ export default function Home() {
       ref={containerRef}
       className="flex flex-col flex-1 items-center justify-center bg-[#121212] font-sans invisible"
     >
+      <Navbar />
       <main className="min-h-full w-full max-w-[85rem] items-center justify-between py-6 sm:items-start overflow-x-hidden">
         <div className="section-wrapper overflow-hidden">
           <div className="gsap-navbar">
