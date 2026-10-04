@@ -276,6 +276,98 @@ import Link from "next/link";
 
 if (typeof window !== "undefined") gsap.registerPlugin(ScrollTrigger);
 
+type ProjectCardProps = {
+  href: string;
+  title: string;
+  description: string;
+  image?: string;
+  tags: string[];
+  accent?: string;
+  imageAlt?: string;
+  children?: React.ReactNode;
+};
+
+
+function ProjectCard({
+  href,
+  title,
+  description,
+  image,
+  tags,
+  accent = "#FFB000",
+  imageAlt,
+  children,
+}: ProjectCardProps) {
+  return (
+    <Link
+      href={href}
+      target="_blank"
+      className="proj-card group rounded-2xl border border-white/[0.06] bg-[#101210] overflow-hidden hover:border-white/[0.15] transition-colors flex flex-col"
+      style={{
+        ["--project-accent" as string]: accent,
+      }}
+    >
+      {/* Preview */}
+      <div className="relative h-52 bg-[#0c0c0d] overflow-hidden">
+        {image ? (
+          <img
+            src={image}
+            alt={imageAlt ?? title}
+            className="absolute inset-0 h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-[1.03]"
+          />
+        ) : (
+          children
+        )}
+
+        <div className="absolute inset-0 bg-gradient-to-t from-[#101210] via-transparent to-black/10" />
+
+        {/* Live badge */}
+        <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-black/60 border border-white/10 px-2.5 py-1">
+          <span
+            className="h-1.5 w-1.5 rounded-full animate-pulse"
+            style={{ backgroundColor: accent }}
+          />
+          <span className="text-[10px] font-mono uppercase tracking-wider text-white/70">
+            live
+          </span>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-6 flex flex-col flex-1">
+        <div className="proj-card-meta flex items-start justify-between gap-3">
+          <h4 className="text-[#E7E5DE] text-xl font-semibold">
+            {title}
+          </h4>
+
+          <ArrowUpRight
+            className="h-5 w-5 text-white/30 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0"
+            style={{
+              color: undefined,
+            }}
+          />
+        </div>
+
+        <p className="proj-card-meta mt-2 text-white/50 text-sm leading-relaxed flex-1 font-sans">
+          {description}
+        </p>
+
+        {/* Tags */}
+        <div className="mt-5 flex flex-wrap gap-2">
+          {tags.map((tag) => (
+            <span
+              key={tag}
+              className="proj-tag text-[11px] font-mono uppercase tracking-wider text-white/40 border border-white/[0.08] rounded-full px-2.5 py-1"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      </div>
+    </Link>
+  );
+}
+
 export default function Projects() {
   const sectionRef = useRef<HTMLDivElement>(null);
 
@@ -295,6 +387,14 @@ export default function Projects() {
       tags: ["Prisma", "PostgreSQL", "NextAuth", "Anthropic API"],
       status: "building",
       href: "#",
+    },
+    {
+      num: "05",
+      title: "Reelwise",
+      desc: "An AI movie recommendation app with taste-modeling that actually improves with use, wrapped in an editorial, cinema-inspired interface.",
+      tags: ["Nextjs", "Langchain", "OpenAi", "Anthropic API"],
+      status: "done",
+      href: "https://reelwise-three.vercel.app/",
     },
   ];
 
@@ -352,7 +452,7 @@ export default function Projects() {
 
   return (
     <section ref={sectionRef} className="w-full px-2 py-6">
-      <div className="w-full rounded-[28px] border border-white/[0.06] bg-[#0D0F0D] p-10 sm:p-12">
+      <div className="w-full rounded-[28px] md:border border-white/[0.06] md:bg-[#0D0F0D] max-md:py-10 sm:p-12">
         <div className="flex items-start justify-between gap-6">
           <div>
             <h2 className="text-[#E7E5DE] text-xl font-display font-semibold leading-tight">Projects</h2>
@@ -379,93 +479,86 @@ export default function Projects() {
         </p>
 
         <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/[0.06] pt-10">
-          <Link
+
+
+
+
+          <ProjectCard
+            href="https://kolo-app-delta.vercel.app/"
+            title="Kolo"
+            description="A modern sales management platform built for Nigerian SMEs to manage sales, products, inventory, customers, expenses, orders, and business performance from one place."
+            image="/kolo-preview.png"
+            imageAlt="Kolo sales management platform"
+            accent="#0d7a55"
+            tags={[
+              "Next.js",
+              "TypeScript",
+              "Tailwind CSS",
+              "Node.js",
+              "Fastify",
+              "PostgreSQL",
+              "Redis",
+              "BullMQ"
+            ]}
+          />
+
+
+
+          <ProjectCard
+            href="https://www.devfestabeokuta.com/"
+            title="DevFest Abeokuta"
+            description="A community-driven developer conference bringing together developers, designers, and tech enthusiasts for talks, workshops, networking, and hands-on building."
+            image="/devfest-preview.png"
+            imageAlt="DevFest Abeokuta"
+            accent="#4285F4"
+            tags={[
+              "Next.js",
+              "TypeScript",
+              "Tailwind CSS",
+              "Google",
+              "Community",
+            ]}
+          />
+
+
+          <ProjectCard
+            href="https://www.devfestabeokuta.com/"
+            title="MailFlow"
+            description="An AI-powered email campaign and CRM manager designed for high-deliverability cold outreach, featuring smart Gemini copy generation, dynamic template variables, and multi-account SMTP integration."
+            image="/mailflow-preview.png"
+            imageAlt="mailflow"
+            accent="#4285F4"
+            tags={[
+              "Next.js",
+              "React",
+              "Electron",
+              "TypeScript",
+              "Tailwind CSS",
+              "Gemini AI",
+              "SQLite",
+              "Drizzle ORM",
+              "Nodemailer",
+            ]}
+          />
+
+          <ProjectCard
             href="https://zentra-degen.vercel.app/"
-            target="_blank"
-            className="proj-card group rounded-2xl border border-white/[0.06] bg-[#101210] overflow-hidden hover:border-[#FFB000]/25 transition-colors flex flex-col">
-            <div className="relative h-52 bg-[#0c0c0d] overflow-hidden">
-              <div
-                className="absolute inset-0 opacity-40"
-                style={{
-                  backgroundImage:
-                    "linear-gradient(rgba(255,176,0,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(255,176,0,0.15) 1px, transparent 1px)",
-                  backgroundSize: "24px 24px",
-                }}
-              />
-              <svg viewBox="0 0 400 120" className="absolute bottom-0 left-0 w-full h-24 opacity-80" preserveAspectRatio="none">
-                <polyline
-                  className="proj-sparkline"
-                  points="0,90 40,70 80,80 120,40 160,55 200,20 240,35 280,15 320,45 360,25 400,10"
-                  fill="none"
-                  stroke="#FFB000"
-                  strokeWidth="2"
-                />
-              </svg>
-              <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-black/60 border border-white/10 px-2.5 py-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#59D9C7] animate-pulse" />
-                <span className="text-[10px] font-mono uppercase tracking-wider text-white/70">live</span>
-              </div>
-              <div className="absolute bottom-4 right-4 font-mono text-[11px] text-[#FFB000]/70">$DEGEN +182.4%</div>
-            </div>
+            title="Zentra Degen Scanner"
+            description="A Bloomberg-terminal-style scanner for Solana meme coins — live ticker feed, risk scoring, and a token detail view built for split-second reads."
+            image="/zentra-preview.png"
+            imageAlt="Zentra Degen Scanner"
+            accent="#FFB000"
+            tags={[
+              "Next.js",
+              "TypeScript",
+              "Solana",
+              "WebSockets",
+              "AI",
+            ]}
+          />
 
-            <div className="p-6 flex flex-col flex-1">
-              <div className="proj-card-meta flex items-start justify-between gap-3">
-                <h4 className="text-[#E7E5DE] text-xl font-semibold">Zentra Degen Scanner</h4>
-                <ArrowUpRight className="h-5 w-5 text-white/30 group-hover:text-[#FFB000] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
-              </div>
-              <p className="proj-card-meta mt-2 text-white/50 text-sm leading-relaxed flex-1 font-sans">
-                A Bloomberg-terminal-style scanner for Solana meme coins — live ticker feed, risk
-                scoring, and a token detail view built for split-second reads.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {["Next.js", "TypeScript", "Solana", "WebSockets", "Ai"].map((t, i) => (
-                  <span key={i} className="proj-tag text-[11px] font-mono uppercase tracking-wider text-white/40 border border-white/[0.08] rounded-full px-2.5 py-1">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </Link>
-
-          <Link
-            href="https://reelwise-three.vercel.app/"
-            target="_blank"
-            className="proj-card group rounded-2xl border border-white/[0.06] bg-[#101210] overflow-hidden hover:border-[#FFB000]/25 transition-colors flex flex-col"
-          >
-            <div className="relative h-52 bg-gradient-to-br from-[#2a2420] to-[#1c1815] overflow-hidden flex items-center justify-center">
-              <span className="font-serif text-[120px] leading-none text-[#e8c07d]/10 select-none" aria-hidden>
-                R
-              </span>
-              <div className="absolute inset-x-6 bottom-6 rounded-xl border border-white/10 bg-black/30 backdrop-blur-sm p-4">
-                <p className="font-serif text-white/80 text-sm italic">{`"`}Uncannily accurate.{`"`}</p>
-                <p className="mt-1 text-[10px] font-mono uppercase tracking-wider text-white/30">recommended for you</p>
-              </div>
-              <div className="absolute top-4 left-4 flex items-center gap-1.5 rounded-full bg-black/60 border border-white/10 px-2.5 py-1">
-                <span className="h-1.5 w-1.5 rounded-full bg-[#e8c07d] animate-pulse" />
-                <span className="text-[10px] font-mono uppercase tracking-wider text-white/70">live</span>
-              </div>
-              <Film className="absolute bottom-4 right-4 h-4 w-4 text-[#e8c07d]/50" />
-            </div>
-
-            <div className="p-6 flex flex-col flex-1">
-              <div className="proj-card-meta flex items-start justify-between gap-3">
-                <h4 className="text-[#E7E5DE] text-xl font-semibold">Reelwise</h4>
-                <ArrowUpRight className="h-5 w-5 text-white/30 group-hover:text-[#FFB000] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
-              </div>
-              <p className="proj-card-meta mt-2 text-white/50 text-sm leading-relaxed flex-1 font-sans">
-                An AI movie recommendation app with taste-modeling that actually improves with
-                use, wrapped in an editorial, cinema-inspired interface.
-              </p>
-              <div className="mt-5 flex flex-wrap gap-2">
-                {["Next.js", "LangChain", "OpenAI", "Gemini Ai"].map((t, i) => (
-                  <span key={i} className="proj-tag text-[11px] font-mono uppercase tracking-wider text-white/40 border border-white/[0.08] rounded-full px-2.5 py-1">
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </Link>
         </div>
+
 
         <div className="proj-directory mt-6 border-t border-white/[0.06]">
           {secondary.map((p, i) => (

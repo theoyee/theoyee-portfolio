@@ -320,7 +320,7 @@ export default function About() {
                 src="https://api.dicebear.com/10.x/micah/svg?seed=theoyeelzr&backgroundColor=121212&radius=150"
                 // src="https://api.dicebear.com/10.x/micah/svg?seed=theoyee&backgroundColor=121212&radius=150"
                 alt="Oyee Olagoke"
-                className="h-full w-full object-contain absolute"
+                className="h-full w-full object-contain absolute max-md:hidden"
                 draggable={true}
               />
               {/* <span className="absolute bottom-0.5 right-0.5 h-2.5 w-2.5 rounded-full border-2 border-[#101210] bg-[#59D9C7]" /> */}
